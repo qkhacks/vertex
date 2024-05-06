@@ -3,6 +3,7 @@ import os
 from dotenv import *
 from flask import Flask, request, jsonify, g
 from tinydb import TinyDB
+from huey import SqliteHuey
 
 from health import *
 from admin import *
@@ -10,9 +11,7 @@ from node import *
 from actor import *
 from messaging import *
 
-app = Flask(__name__)
 load_dotenv()
-
 jwt_signing_key = os.getenv("JWT_SIGNING_KEY")
 vertex_endpoint = os.getenv("VERTEX_ENDPOINT")
 data_path = os.getenv("DATA_PATH")
@@ -21,6 +20,8 @@ federation_protocol = os.getenv("FEDERATION_PROTOCOL")
 if not os.path.exists(data_path):
     os.makedirs(data_path)
 
+app = Flask(__name__)
+huey = SqliteHuey("worker", filename= os.path.join(data_path, "huey.db"))
 meta_db = TinyDB(os.path.join(data_path, 'meta.json'))
 
 admin_manager = AdminManager(meta_db.table("admins"), jwt_signing_key, vertex_endpoint)

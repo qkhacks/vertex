@@ -6,3 +6,4 @@ python-dotenv
 tinydb
 cryptography
 requests
+huey
